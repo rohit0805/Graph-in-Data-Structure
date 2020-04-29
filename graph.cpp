@@ -4,50 +4,33 @@ void addedge(vector<int> adj[],int u,int v){
 	adj[u].push_back(v);
 	adj[v].push_back(u);
 }
-void BFS(vector<int> adj[],int V){
-	int s=1;
-	queue<int>q;
-	q.push(s);
-	bool visited[V+1];
-	for(int i=1;i<=V;i++){
-		visited[i]=false;
-	}
-	visited[s]=true;
-	while(!q.empty()){
-		int root=q.front();
-		q.pop();
-		cout<<root<<" ";
-		for(auto x:adj[root]){
-			if(visited[x]==false){
-				q.push(x);
-				visited[x]=true;	
-			}
-		}
-	}
-}
-void dfsloop(vector<int> adj[],bool visited[],int i){
+int search(vector<int> adj[],bool visited[],int i,int parent){
 	visited[i]=true;
-	cout<<i<<" ";
-	for(auto x:adj[i])
-	{
+	for(auto x:adj[i]){
 		if(visited[x]==false){
-			dfsloop(adj,visited,x);
+			if(search(adj,visited,x,i))	
+				return 1;
+		}
+		else if(x!=parent){
+			return 1;
 		}
 	}
+	return 0;
 }
-
-void DFS(vector<int> adj[],int V){
+int detectcycle(vector<int>adj[],int V){
+	int i;
 	bool visited[V+1];
-	for(int i=1;i<=V;i++){
+	for(i=1;i<=V;i++){
 		visited[i]=false;
 	}
-	for(int i=1;i<=V;i++){
+	for(i=1;i<=V;i++){
 		if(visited[i]==false){
-			dfsloop(adj,visited,i);
+			if(search(adj,visited,i,-1))
+				return 1;
 		}
 	}
+	return 0;
 }
-
 int main(){
 	int V=6;
 	vector<int> adj[V+1];
@@ -55,13 +38,12 @@ int main(){
 	addedge(adj,1,3);
 	addedge(adj,2,4);
 	addedge(adj,2,5);
-	addedge(adj,3,5);
-	addedge(adj,4,5);
-	addedge(adj,4,6);
-	addedge(adj,5,6);
-	cout<<"BFS of a graph: ";
-	BFS(adj,V);
-	cout<<"\nDFS of a graph: ";
-	DFS(adj,V);
+	addedge(adj,3,4);
+	if(detectcycle(adj,V)){
+		cout<<"Cycle detected"<<endl;
+	}
+	else{
+		cout<<"Cycle not detected"<<endl;
+	}
 	return 0;
 }
