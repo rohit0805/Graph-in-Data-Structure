@@ -1,49 +1,69 @@
 #include<bits/stdc++.h>
 using namespace std;
+int indegree[10];
 void addedge(vector<int> adj[],int u,int v){
 	adj[u].push_back(v);
+	indegree[v]++;
 }
-int cycleloop(vector<int> adj[],bool visited[],bool stack[],int i){
+void topologicalsorting(vector<int> adj[],int V){
+	int i;
+	queue<int> q;
+	for(i=0;i<V;i++){
+		if(indegree[i]==0)
+			q.push(i);
+	}
+	while(!q.empty()){
+		int root=q.front();
+		q.pop();
+		cout<<root<<" ";
+		for(auto x:adj[root]){
+			if(indegree[x]>=1){
+				indegree[x]--;
+			}
+			if(indegree[x]==0){
+				q.push(x);
+			}
+		}
+	}
+}
+void toploop(vector<int> adj[],bool visited[],int i,stack<int>&s){
 	visited[i]=true;
-	stack[i]=true;
 	for(auto x:adj[i]){
 		if(visited[x]==false){
-			if(cycleloop(adj,visited,stack,x))
-				return 1;
-		}
-		else if(stack[x]==true){
-			return 1;
+			toploop(adj,visited,x,s);
 		}
 	}
-	stack[i]=false;
-	return 0;
+	s.push(i);
 }
 
-int detectcycle(vector<int> adj[],int V){
-	bool visited[V+1],stack[V+1];
-	for(int i=0;i<=V;i++){
-		visited[i]=stack[i]=false;
+void toposort(vector<int> adj[],int V){
+	bool visited[V];
+	int i;
+	for(i=0;i<V;i++){
+		visited[i]=false;
 	}
-	for(int i=0;i<=V;i++){
-		if(cycleloop(adj,visited,stack,i))
-			return 1;
+	stack<int>s;
+	for(i=0;i<V;i++){
+		if(visited[i]==false)
+			toploop(adj,visited,i,s);
 	}
-	return 0;
+	while(!s.empty()){
+		cout<<s.top()<<" ";
+		s.pop();
+	}
 }
 
 int main(){
-	int V=6;
-	vector<int> adj[V+1];
-	addedge(adj,0,1);
-	addedge(adj,1,2);
+	int V=5;
+	vector<int> adj[V];
+	addedge(adj,0,2);
+	addedge(adj,0,3);
+	addedge(adj,1,3);
+	addedge(adj,1,4);
 	addedge(adj,2,3);
-	addedge(adj,3,4);
-	addedge(adj,4,5);
-	addedge(adj,2,5);
-	//addedge(adj,5,3);
-	if(detectcycle(adj,V))
-		cout<<"Cycle detected"<<endl;
-	else
-		cout<<"Cycle not detected"<<endl;
+	cout<<"Topological sorting using BFS\n";
+	topologicalsorting(adj,V);
+	cout<<"\nTopological sorting using DFS\n";
+	toposort(adj,V);
 	return 0;
 }
