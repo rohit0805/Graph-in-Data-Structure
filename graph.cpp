@@ -4,17 +4,15 @@ void addedge(vector<int> adj[],int u,int v){
 	adj[u].push_back(v);
 	adj[v].push_back(u);
 }
-
 void BFS(vector<int> adj[],int V){
+	int s=1;
+	queue<int>q;
+	q.push(s);
 	bool visited[V+1];
-	int i;
-	for(i=0;i<=V;i++){
+	for(int i=1;i<=V;i++){
 		visited[i]=false;
 	}
-	queue<int>q;
-	int s=1;
 	visited[s]=true;
-	q.push(s);
 	while(!q.empty()){
 		int root=q.front();
 		q.pop();
@@ -22,8 +20,30 @@ void BFS(vector<int> adj[],int V){
 		for(auto x:adj[root]){
 			if(visited[x]==false){
 				q.push(x);
-				visited[x]=true;
+				visited[x]=true;	
 			}
+		}
+	}
+}
+void dfsloop(vector<int> adj[],bool visited[],int i){
+	visited[i]=true;
+	cout<<i<<" ";
+	for(auto x:adj[i])
+	{
+		if(visited[x]==false){
+			dfsloop(adj,visited,x);
+		}
+	}
+}
+
+void DFS(vector<int> adj[],int V){
+	bool visited[V+1];
+	for(int i=1;i<=V;i++){
+		visited[i]=false;
+	}
+	for(int i=1;i<=V;i++){
+		if(visited[i]==false){
+			dfsloop(adj,visited,i);
 		}
 	}
 }
@@ -39,6 +59,9 @@ int main(){
 	addedge(adj,4,5);
 	addedge(adj,4,6);
 	addedge(adj,5,6);
+	cout<<"BFS of a graph: ";
 	BFS(adj,V);
+	cout<<"\nDFS of a graph: ";
+	DFS(adj,V);
 	return 0;
 }
