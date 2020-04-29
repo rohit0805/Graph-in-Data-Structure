@@ -2,51 +2,48 @@
 using namespace std;
 void addedge(vector<int> adj[],int u,int v){
 	adj[u].push_back(v);
-	adj[v].push_back(u);
 }
-void shortestpath(vector<int> adj[],int source,int dest,int V){
-	int arr[V],i;
-	bool visited[V];
-	for(i=0;i<V;i++){
-		arr[i]=INT_MAX;
-		visited[i]=false;
-	}
-	queue<int>q;
-	arr[source]=0;
-	q.push(source);
-	visited[source]=true;
-	while(!q.empty()){
-		int root=q.front();
-		q.pop();
-		for(auto x:adj[root]){
-			if(visited[x]==false){
-				if(arr[x]>arr[root]+1){
-					visited[x]=true;
-					q.push(x);
-					arr[x]=arr[root]+1;
-				}
-			}
+int cycleloop(vector<int> adj[],bool visited[],bool stack[],int i){
+	visited[i]=true;
+	stack[i]=true;
+	for(auto x:adj[i]){
+		if(visited[x]==false){
+			if(cycleloop(adj,visited,stack,x))
+				return 1;
+		}
+		else if(stack[x]==true){
+			return 1;
 		}
 	}
-	for(i=0;i<V;i++){
-		cout<<i<<" : "<<arr[i]<<endl;
-	}
-	cout<<"Shortest path from "<<source<<" to "<<dest<<" is "<<arr[dest];
+	stack[i]=false;
+	return 0;
 }
+
+int detectcycle(vector<int> adj[],int V){
+	bool visited[V+1],stack[V+1];
+	for(int i=0;i<=V;i++){
+		visited[i]=stack[i]=false;
+	}
+	for(int i=0;i<=V;i++){
+		if(cycleloop(adj,visited,stack,i))
+			return 1;
+	}
+	return 0;
+}
+
 int main(){
-	int V=8;
-	vector<int>adj[V];
+	int V=6;
+	vector<int> adj[V+1];
 	addedge(adj,0,1);
-	addedge(adj,0,3);
 	addedge(adj,1,2);
+	addedge(adj,2,3);
 	addedge(adj,3,4);
-	addedge(adj,3,7);
 	addedge(adj,4,5);
-	addedge(adj,4,6);
-	addedge(adj,4,7);
-	addedge(adj,5,6);
-	addedge(adj,6,7);
-	int source=0,dest=7;
-	shortestpath(adj,source,dest,V);
+	addedge(adj,2,5);
+	//addedge(adj,5,3);
+	if(detectcycle(adj,V))
+		cout<<"Cycle detected"<<endl;
+	else
+		cout<<"Cycle not detected"<<endl;
 	return 0;
 }
